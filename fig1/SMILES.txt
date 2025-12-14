@@ -1,0 +1,38 @@
+import urllib
+import pubchempy
+import pandas as pd
+import numpy as np
+import csv
+
+with open('data.txt','r',encoding='utf-8-sig') as file:
+  file_lines = file.readlines()
+  name_list=[]
+  a=[]
+  cc=[]
+  d=[]
+  e=[]
+  f=[]
+  g=[]
+
+for i in file_lines:
+  j=i.strip() 
+  name_list.append(str(j))
+for k in  name_list:
+  results = pubchempy.get_compounds(k, 'name')
+  for l in results:
+    try:
+      print('CID: {}\tMass: {}\tName: {}\tMolfor: {}\tSmi: {}'.format(l.cid,l.exact_mass,l.iupac_name,l.molecular_formula,l.isomeric_smiles))
+      MFs=l.molecular_formula
+      MWs=l.molecular_weight
+      ISs=l.isomeric_smiles
+      Cis=l.cid
+      a.append(k)
+      cc.append(MFs)
+      d.append(ISs)
+      f.append(Cis)
+      g.append(MWs)
+    except (pubchempy.BadRequestError,TimeoutError,urllib.error.URLError,ValueError):
+      pass
+
+dataframe=pd.DataFrame({'name':a,'molecular_formula':cc,'molecular_weight':g,'smiles':d,'cid':f})
+dataframe.to_csv ("SMILES.csv",index=False,sep=',')
